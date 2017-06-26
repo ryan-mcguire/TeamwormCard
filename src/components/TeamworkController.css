@@ -1,0 +1,12 @@
+﻿// TeamworkController.css
+.TeamworkController {
+  text-align: center;
+}
+
+.TeamworkController table {
+    border: 1px solid black;
+}
+
+.TeamworkController table td {
+    border: 1px solid black;
+}
