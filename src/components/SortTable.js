@@ -31,7 +31,7 @@ class SortTableRow extends Component {
         return (
             <tr onClick={this.props.onClick}>
                 {this.props.colspecs.map((item2, index2) => {
-                    return (<SortTableCell item={this.props.item} spec={item2} />);
+                    return (<SortTableCell key={index2} item={this.props.item} spec={item2} />);
                 })}
             </tr>
         );
@@ -45,27 +45,35 @@ class SortTable extends Component {
         // This state is just local, so this component shouln't worry about being part of the big Redux state.  
         // At least not until someother component changes this component's state through something other than
         // the constructor.
-        this.state = {
-            data: this.props.data,
-            colspecs: this.props.colspecs,
-            sortcol: this.props.sortcol,
-            sortdir: this.props.sortdir,
-        };
+        if (this.props.hasOwnProperty("title")) {
+            this.state = {
+                data: this.props.data,
+                colspecs: this.props.colspecs,
+                sortcol: this.props.sortcol,
+                sortdir: this.props.sortdir,
+            };
+        }
+        else {
+            this.state = null;
+        }
         this.sortData();
+        this.rendercount = 0;
     }
 
     sortData(sortcol, sortdir, data)  {
-        sortcol = (typeof sortcol !== 'undefined') ?  sortcol : this.state.sortcol;
-        sortdir = (typeof sortdir !== 'undefined') ?  sortdir : this.state.sortdir;
-        data = (typeof data !== 'undefined') ?  data : this.state.data;
-        // Get the function to extract the sort-by data from each item based on the current sort column.
-        var sortfunc = this.state.colspecs[sortcol].sortfunc;
-        var dirmultiplier = sortdir === 'asc' ? 1 : -1;
+        if (this.state != null) {
+            sortcol = (typeof sortcol !== 'undefined') ?  sortcol : this.state.sortcol;
+            sortdir = (typeof sortdir !== 'undefined') ?  sortdir : this.state.sortdir;
+            data = (typeof data !== 'undefined') ?  data : this.state.data;
+            // Get the function to extract the sort-by data from each item based on the current sort column.
+            var sortfunc = this.state.colspecs[sortcol].sortfunc;
+            var dirmultiplier = sortdir === 'asc' ? 1 : -1;
 
-        // sort the data items based on the current sort column.
-        data.sort((d1, d2) => { 
-            return ((sortfunc(d1) > sortfunc(d2) ? 1 : -1) * dirmultiplier);
-        });
+            // sort the data items based on the current sort column.
+            data.sort((d1, d2) => { 
+                return ((sortfunc(d1) > sortfunc(d2) ? 1 : -1) * dirmultiplier);
+            });
+        }
     }
 
     changesort = (newcolumn) => {
@@ -86,23 +94,32 @@ class SortTable extends Component {
     render() {
         return (
             <div>
-                <h2>{this.props.title}</h2>
+                <h2>{this.state != null ? this.props.title : "title"}</h2>
                 <table className="SortTable">
                     <tbody>
                         <tr>
-                            {this.state.colspecs.map((item2, index2) => {
-                                return (<SortTableHeader 
-                                            spec={item2} 
-                                            issortcol={this.state.sortcol === index2} 
-                                sortdir={this.state.sortdir} 
-                                clickarg={index2} 
-                                onclick={this.changesort}/>);
-                            })}
+                            {this.state != null 
+                                ?   this.state.colspecs.map((item2, index2) => {
+                                        return (<SortTableHeader 
+                                                key={this.rendercount++}
+                                                spec={item2} 
+                                                issortcol={this.state.sortcol === index2} 
+                                                sortdir={this.state.sortdir} 
+                                                clickarg={index2} 
+                                                onclick={this.changesort}/>);
+                                    })
+                                :   ''
+                            }
                         </tr>
-                        {this.state.data != null 
+                        {this.state != null && this.state.data != null 
                             ?   this.state.data.map((item, index) => {
                                 return (
-                                    <SortTableRow colspecs={this.state.colspecs} item={item} onClick={() => {this.onSelectRow(item);}} onClickArg={index} />
+                                    <SortTableRow 
+                                        key={this.rendercount++}
+                                        colspecs={this.state.colspecs} 
+                                        item={item} 
+                                        onClick={() => {this.onSelectRow(item);}} 
+                                        onClickArg={index} />
                                 );  
                             })
                             :   ''

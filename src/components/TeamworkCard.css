@@ -1,0 +1,12 @@
+﻿// TeamworkCard.css
+.TeamworkCard {
+  text-align: center;
+}
+
+.TeamworkCard table {
+    border: 1px solid blue;
+}
+
+.TeamworkCard table td {
+    border: 1px solid blue;
+}

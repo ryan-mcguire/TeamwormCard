@@ -1,59 +1,17 @@
-// TeamworkController.js
+// TeamworkCard.js
 import React, { Component } from 'react';
-import axios from 'axios';
-import './TeamworkController.css';
+import './TeamworkCard.css';
 import SortTable from './SortTable.js'
+import ProjectsContainer from '../containers/ProjectsContainer'
+import TaskListsContainer from '../containers/TaskListsContainer'
+import getDataAsync from '../lib/GetDataAsync'
 
-export default class TeamworkController extends Component {
+export default class TeamworkCard extends Component {
     constructor(props) {
         super(props);
 
-        this.state = {
-            text: "",
-            tasks: [],
-            tasklists: [],
-            projects: [],
-            columns: [],
-            blockedTaskSortcol: 0,
-            blockedTaskSortdir: 'asc',
-            boardTaskSortcol: 0,
-            boardTaskSortdir: 'asc',
-            listSortcol: 0,
-            listSortdir: 'asc',
-            projSortcol: 0,
-            projSortdir: 'asc',
-            projfilter: this.props.projfilter
-        };
-
-        this.projColspecs = [
-            { 
-                key: "ID", 
-                sortfunc: (d) => { return d["id"]; }, 
-                dispfunc: (d) => { return d["id"]; }, 
-                format: 'text' 
-            },
-            { 
-                key: "Name", 
-                sortfunc: (d) => { return d["name"]; }, 
-                dispfunc: (d) => { return d["name"]; }, 
-                format: 'text' 
-            },
-            { 
-                key: "Status", 
-                sortfunc: (d) => { return d["status"] + "-" + d["subStatus"]; }, 
-                dispfunc: (d) => { return d["status"] + "-" + d["subStatus"]; }, 
-                format: 'text' 
-            }
-        ];
-
-        this.listColspecs = [
-            { 
-                key: "Name", 
-                sortfunc: (d) => { return d["name"]; }, 
-                dispfunc: (d) => { return d["name"]; }, 
-                format: 'text' 
-            }
-        ];
+        this.blockedTaskSortcol = 0;
+        this.blockedTaskSortdir = 'asc';
 
         this.blockedTaskColspecs = [
             { 
@@ -62,7 +20,7 @@ export default class TeamworkController extends Component {
                         return false;
                     }
                     var blocked=false; 
-                    d.tags.map((tag) => blocked |= (tag.name=="BLOCKED")); 
+                    d.tags.map((tag) => {return(blocked |= (tag.name==="BLOCKED"))}); 
                     return blocked; 
                 },
                 key: "Name", 
@@ -101,6 +59,10 @@ export default class TeamworkController extends Component {
                 format: "text"
             }
         ];
+
+
+        this.boardTaskSortcol = 0;
+        this.boardTaskSortdir = 'asc';
 
         this.boardTaskColspecs = [
             { 
@@ -152,8 +114,8 @@ export default class TeamworkController extends Component {
                 format: "text"
             }
         ];
-        this.rendercount = 0;
 
+        this.rendercount = 0;
     }
 
 
@@ -163,10 +125,12 @@ export default class TeamworkController extends Component {
         columns.map((col) => {
             console.log(col["id"]);
             newTasks.map((task) => {
-                if (task.hasOwnProperty("boardColumn") && col["id"] == task["boardColumn"]["id"]) {
+                if (task.hasOwnProperty("boardColumn") && col["id"] === task["boardColumn"]["id"]) {
                     task["boardColumn"]["displayOrder"] = col["displayOrder"];
                 }
+                return 0;
             });
+            return 0;
         });
         return (newTasks);
     }
@@ -174,15 +138,10 @@ export default class TeamworkController extends Component {
     processTaskData(data, component) {
         if (data != null) {
             console.log("processTaskData(" + data + ")" + data.data["todo-items"].length);
-            console.log("processTaskData(" + data + ") " + component.state.columns.length + " columns");
+            console.log("processTaskData(" + data + ") " + component.props.columns.length + " columns");
             console.log("setting tasks");
-
-            component.setState((prevState) => {
-                console.log("processTaskData.setState()");
-                return ({
-                    tasks: component.assignDisplayOrderToTasks(data.data["todo-items"], prevState.columns)
-                });
-            });
+            //component.props.clearTasks();
+            component.props.addTasks(component.assignDisplayOrderToTasks(data.data["todo-items"], component.props.columns))
         }
     }
 
@@ -190,9 +149,8 @@ export default class TeamworkController extends Component {
         if (data != null) {
             console.log("processTaskListData(" + data + ")" + data.data["tasklists"].length);
             console.log("setting tasklists");
-            component.setState({
-                tasklists: data.data["tasklists"]
-            });
+            //component.props.clearTaskLists();
+            component.props.addTaskLists(data.data["tasklists"]);
         }
     }
 
@@ -201,54 +159,27 @@ export default class TeamworkController extends Component {
         if (data != null) {
             console.log("processBoardColumnData(" + data + ")" + data.data["columns"].length);
             console.log("setting boardColumns");
-            component.setState({
-                columns: data.data["columns"]
-            });
+            //component.props.clearColumns();
+            component.props.addColumns(data.data["columns"])
         }
     }
 
     processProjectData(data, component) {
         if (data != null) {
             console.log("processProjectData(" + data + "), ");
-            if (data.hasOwnProperty("projects") ) {
+            if (data.data.hasOwnProperty("projects") ) {
                 console.log("setting projects");
-                component.setState((prevstate) => {
-                    console.log("setting state.projects to have " + data.data["projects"].length);
-                    return ({ projects: data.data["projects"] });
-                });
+                component.props.clearProjects();
+                component.props.addProjects(data.data["projects"]);
             }
             else {
                 console.log("setting projects to single project");
-                component.setState((prevstate) => {
-                    console.log("setting state.projects to have single");
-                    return ({ projects: [data.data["project"]] });
-                });
+                component.props.clearProjects();
+                component.props.addProjects([data.data["project"]]);
             }
         }
     }
 
-    getDataAsync(url, dataProcessor) {
-        console.log("getDataAsync(" + url + ", dataProcessor)");
-        var component=this;
-        axios
-            .get(url, 
-                 {headers: {
-                     "Authorization": "Basic dHdwX1NWa0c4MGprZmJXa0E4UE4xb1VWRXBYT2JLOTU6",
-                     "Accept": "text/plain",
-                     "Content-Type": "text/plain"
-                 }} )
-            .then(function(httpresponse) { 
-                dataProcessor(httpresponse, component); 
-            }) 
-            .catch(function(httpresponse) {
-                if (httpresponse instanceof Error) {
-                    console.log("getDataAsync: URL: " + url + ", Error with ajax call:", httpresponse.message);
-                } else {
-                    console.log("getDataAsync: URL: " + url + ", request problem, response is: " + httpresponse.status);
-                }
-                dataProcessor(null, component); 
-            });
-    }
 
 
     getTasks(projectId, taskListId) {
@@ -260,69 +191,85 @@ export default class TeamworkController extends Component {
             url = "http://clevelandclinic.teamwork.com/projects/" + projectId + "/tasks.json";
         }
 
-        this.getDataAsync(url, this.processTaskData)
+        getDataAsync(url, this, this.processTaskData)
     }
 
     getBoardColumns(projectId) {
         var url = "http://clevelandclinic.teamwork.com/projects/" + projectId + "/boards/columns.json";
-        this.getDataAsync(url, this.processBoardColumnData)
+        getDataAsync(url, this, this.processBoardColumnData)
     }
 
     getTaskLists(projectId) {
         var url = "http://clevelandclinic.teamwork.com/projects/" + projectId + "/tasklists.json";
-        this.getDataAsync(url, this.processTaskListData)
+        getDataAsync(url, this, this.processTaskListData)
     }
 
 
     getProjects(projectId) {
+        console.log("getProjects()");
         var url = "http://clevelandclinic.teamwork.com/projects.json";
         if (typeof projectId !== 'undefined') {
             url = "http://clevelandclinic.teamwork.com/projects/" + projectId + ".json";
         }
-        this.getDataAsync(url, this.processProjectData);
+        getDataAsync(url, this, this.processProjectData);
     }
 
     componentDidMount() {
-        this.getProjects("208332");
-        //this.getTaskLists("208332");
-        //this.getTasks("208332");
-    }
 
-    onSelectProj = (item) => {
-        this.getTaskLists(item.id);
-        this.getBoardColumns(item.id);
-        this.setState({
-            tasklists: [],
-            tasks: []
-        });
+        this.getProjects();
+        //this.getProjects("208332");
     }
 
     onSelectTaskList = (item) => {
-        this.getTasks(item.projectId, item.id);     // Conveninetly, the tasklist item also caontains the id of it's parent project.
-        this.setState({
-            tasks: []
-        });
+    }
+
+    componentDidUpdate() {
+        // How to respond to this component being rendered.  This has two main purposes:
+        //  1) Implement short0cut type business rules like, "if there only one of X, select that one.
+        //  2) If a previous state change should have triggered another one, possibly assynchronously, do that now.
+        
+        // I suppose you could do some sort of animation like this:
+        // if (frame three is rendered) 
+        //      set state to show frame 4.
+        // Maybe.
+
+        // If there is a new selected project...
+        if (this.props.selectedItems.projectIsNew) {
+            console.log("== if project ==");
+            this.props.completeProject();       // Mark the selected project as no longer "new".
+            this.props.clearTasks();
+            this.props.clearTaskLists();
+            this.props.clearColumns();
+            this.getTaskLists(this.props.selectedItems.project);
+            this.getBoardColumns(this.props.selectedItems.project);
+        }
+
+        // If there is a new selected taks list...
+        if (this.props.selectedItems.tasklistIsNew) {
+            this.props.completeTaskList();      // Mark the selected task list as no longer "new"
+            this.props.clearTasks();
+            this.getTasks(this.props.selectedItems.project, this.props.selectedItems.tasklist);     // Conveninetly, the tasklist item also contains the id of it's parent project.
+        }
     }
 
     render() {
-        //console.log("--------------------------------------------------------");
-        //console.log("tasks " + this.state.tasks.length);
-        //console.log("tasklists " + this.state.tasklists.length);
-        //console.log("projects " + this.state.projects.length);
-        //console.log("rendercount " + this.rendercount);
+        console.log("--------------------------------------------------------");
+        console.log("In TeamworkCard.render()");
+        console.log("  props: " + Object.keys(this.props));
+        console.log("  tasks " + this.props.tasks.length);
 
         // Always incrementing rendercount and thereby passing a unique value as the "key" attribute to SortTable, 
         // forces React to create a new SortTable object each time this component is rendered, instead of re-using
         // the existing one(s).
         return (
-          <div className="TeamworkController">
-              {this.state.text}
-              <SortTable key={this.rendercount++} title="Projects"   data={this.state.projects}  colspecs={this.projColspecs} sortcol={this.state.projSortcol} sortdir={this.state.projSortdir} onSelectRow={this.onSelectProj} />
-              <SortTable key={this.rendercount++} title="Task Lists" data={this.state.tasklists} colspecs={this.listColspecs} sortcol={this.state.listSortcol} sortdir={this.state.listSortdir} onSelectRow={this.onSelectTaskList} />
-              <SortTable key={this.rendercount++} title="Blocked Tasks"      data={this.state.tasks}     colspecs={this.blockedTaskColspecs} sortcol={this.state.blockedTaskSortcol} sortdir={this.state.blockedTaskSortdir} />
-              <SortTable key={this.rendercount++} title="All Tasks by Column"      data={this.state.tasks}     colspecs={this.boardTaskColspecs} sortcol={this.state.boardTaskSortcol} sortdir={this.state.boardTaskSortdir} />
+          <div className="TeamworkCard">
+            <SortTable />
+            <ProjectsContainer />
+            <TaskListsContainer />
+            <SortTable key={"BlockedTask" + this.rendercount++} title="Blocked Tasks"      data={this.props.tasks}     colspecs={this.blockedTaskColspecs} sortcol={this.blockedTaskSortcol} sortdir={this.blockedTaskSortdir} />
+            <SortTable key={"TasksByColumn" + this.rendercount++} title="All Tasks by Column"      data={this.props.tasks}     colspecs={this.boardTaskColspecs} sortcol={this.boardTaskSortcol} sortdir={this.boardTaskSortdir} />
           </div>
-      );
+        );
     }
 }
 

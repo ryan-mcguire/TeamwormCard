@@ -7,7 +7,8 @@
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
     "react-redux": "^5.0.5",
-    "redux": "^3.7.0"
+    "redux": "^3.7.0",
+    "redux-immutable-state-invariant": "^2.0.0"
   },
   "devDependencies": {
     "jest": "^20.0.4",
@@ -17,6 +18,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "jest": "jest",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   }

@@ -62,7 +62,7 @@ export default class TeamworkController extends Component {
                         return false;
                     }
                     var blocked=false; 
-                    d.tags.map((tag) => blocked |= (tag.name=="BLOCKED")); 
+                    d.tags.map((tag) => blocked |= (tag.name==="BLOCKED")); 
                     return blocked; 
                 },
                 key: "Name", 
@@ -163,10 +163,12 @@ export default class TeamworkController extends Component {
         columns.map((col) => {
             console.log(col["id"]);
             newTasks.map((task) => {
-                if (task.hasOwnProperty("boardColumn") && col["id"] == task["boardColumn"]["id"]) {
+                if (task.hasOwnProperty("boardColumn") && col["id"] === task["boardColumn"]["id"]) {
                     task["boardColumn"]["displayOrder"] = col["displayOrder"];
                 }
+                return 0;
             });
+            return 0;
         });
         return (newTasks);
     }
