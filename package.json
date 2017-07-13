@@ -4,11 +4,15 @@
   "private": true,
   "dependencies": {
     "axios": "^0.16.2",
+    "enzyme": "^2.9.1",
+    "expect": "^1.20.2",
+    "mocha": "^3.4.2",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
     "react-redux": "^5.0.5",
     "redux": "^3.7.0",
-    "redux-immutable-state-invariant": "^2.0.0"
+    "redux-immutable-state-invariant": "^2.0.0",
+    "redux-promise": "^0.5.3"
   },
   "devDependencies": {
     "jest": "^20.0.4",

@@ -1,4 +1,5 @@
 // selecteditems.js - all the reducer logic that affects the selected items: project(s), tasklist(s), bourd column(s), task(s).
+import * as actions from '../actions/actions';
 
 const selectedItems = (state = {}, action) => {
     // Start with the old state as the default. 
@@ -6,32 +7,32 @@ const selectedItems = (state = {}, action) => {
 
     /// ...and then just change what needs to be changed.
     switch (action.type) {
-        case 'SET_SELECTED_PROJECT':
-            newState["project"] = action.selectedProjectId;
+        case actions.SET_SELECTED_PROJECT:
+            newState["project"] = action.payload;
             newState["projectIsNew"] = true;
             break;
-        case 'SET_SELECTED_TASKLIST':
-            newState["tasklist"] = action.selectedTaskListId;
+        case actions.SET_SELECTED_TASKLIST:
+            newState["tasklist"] = action.payload;
             newState["tasklistIsNew"] = true;
             break;
-        case 'SET_SELECTED_COLUMN':
-            newState["column"] = action.selectedColumnId;
+        case actions.SET_SELECTED_COLUMN:
+            newState["column"] = action.payload;
             newState["columnIsNew"] = true;
             break;
-        case 'SET_SELECTED_TASK':
-            newState["task"] = action.selectedTaskId;
+        case actions.SET_SELECTED_TASK:
+            newState["task"] = action.payload;
             newState["taskIsNew"] = true;
             break;
-        case 'COMPLETE_PROJECT':
+        case actions.COMPLETE_PROJECT:
             newState["projectIsNew"] = false;
             break;
-        case 'COMPLETE_TASKLIST':
+        case actions.COMPLETE_TASKLIST:
             newState["tasklistIsNew"] = false;
             break;
-        case 'COMPLETE_COLUMN':
+        case actions.COMPLETE_COLUMN:
             newState["columnIsNew"] = false;
             break;
-        case 'COMPLETE_TASK':
+        case actions.COMPLETE_TASK:
             newState["taskIsNew"] = false;
             break;
         default:

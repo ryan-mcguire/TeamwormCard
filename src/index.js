@@ -7,14 +7,12 @@ import TeamworkCardContainer from './containers/TeamworkCardContainer.js';
 //import registerServiceWorker from './registerServiceWorker';
 import './index.css';
 import { createStore, applyMiddleware } from 'redux';
-import reduxImmutableStateInvariant from 'redux-immutable-state-invariant';
+import ReduxPromise from 'redux-promise';
 
-let store = createStore(TeamworkApp); 
-//let store = createStore(TeamworkApp, 
-//                        {projects: [], tasklists: [], tasks: [], columns: [], selectedItems: {}}, 
-//                        applyMiddleware(reduxImmutableStateInvariant()));
+//let store = createStore(TeamworkApp); 
+let createStoreWithMiddleware = applyMiddleware(ReduxPromise)(createStore);
 
-var Index = <Provider store={store}><TeamworkCardContainer /></Provider>
+var Index = <Provider store={createStoreWithMiddleware(TeamworkApp)}><TeamworkCardContainer /></Provider>
 
 ReactDOM.render(Index, document.getElementById('root'));
 //ReactDOM.render(<TeamworkController />, document.getElementById('root'));

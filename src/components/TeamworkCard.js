@@ -191,17 +191,17 @@ export default class TeamworkCard extends Component {
             url = "http://clevelandclinic.teamwork.com/projects/" + projectId + "/tasks.json";
         }
 
-        getDataAsync(url, this, this.processTaskData)
+        getDataAsync(url, this, this.processTaskData);
     }
 
     getBoardColumns(projectId) {
         var url = "http://clevelandclinic.teamwork.com/projects/" + projectId + "/boards/columns.json";
-        getDataAsync(url, this, this.processBoardColumnData)
+        getDataAsync(url, this, this.processBoardColumnData);
     }
 
     getTaskLists(projectId) {
         var url = "http://clevelandclinic.teamwork.com/projects/" + projectId + "/tasklists.json";
-        getDataAsync(url, this, this.processTaskListData)
+        getDataAsync(url, this, this.processTaskListData);
     }
 
 
@@ -237,17 +237,14 @@ export default class TeamworkCard extends Component {
         if (this.props.selectedItems.projectIsNew) {
             console.log("== if project ==");
             this.props.completeProject();       // Mark the selected project as no longer "new".
-            this.props.clearTasks();
-            this.props.clearTaskLists();
-            this.props.clearColumns();
             this.getTaskLists(this.props.selectedItems.project);
             this.getBoardColumns(this.props.selectedItems.project);
         }
 
-        // If there is a new selected taks list...
+        // If there is a new selected task list...
         if (this.props.selectedItems.tasklistIsNew) {
+            console.log("== if tasklist ==");
             this.props.completeTaskList();      // Mark the selected task list as no longer "new"
-            this.props.clearTasks();
             this.getTasks(this.props.selectedItems.project, this.props.selectedItems.tasklist);     // Conveninetly, the tasklist item also contains the id of it's parent project.
         }
     }

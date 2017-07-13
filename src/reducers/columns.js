@@ -1,13 +1,15 @@
 // columns.js - all the reducer logic that affects the list of board columns.
+import * as actions from '../actions/actions';
 
 const columns = (state = [], action) => {
     switch (action.type) {
-        case 'ADD_COLUMNS':
+        case actions.ADD_COLUMNS:
             return [
                 ...state,
-                ...action.newColumns
+                ...action.payload
             ];
-        case 'CLEAR_COLUMNS':
+        case actions.COMPLETE_PROJECT:
+        case actions.CLEAR_COLUMNS:
             return [];
         default:
             return state;

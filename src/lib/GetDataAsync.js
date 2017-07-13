@@ -15,6 +15,7 @@ const getDataAsync = (url, component, dataProcessor)  => {
             dataProcessor(httpresponse, component); 
         }) 
         .catch(function(httpresponse) {
+            // TODO: Handle 307 - Temporarily Redirected return code
             if (httpresponse instanceof Error) {
                 console.log("getDataAsync: URL: " + url + ", Error with ajax call:", httpresponse.message);
             } else {

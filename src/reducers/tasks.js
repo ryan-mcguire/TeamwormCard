@@ -1,13 +1,16 @@
 // tasks.js
+import * as actions from '../actions/actions';
 
 const tasks = (state = [], action) => {
     switch (action.type) {
-        case 'ADD_TASKS':
+        case actions.ADD_TASKS:
             return [
                 ...state,
-                ...action.newTasks
+                ...action.payload
             ];
-        case 'CLEAR_TASKS':
+        case actions.COMPLETE_TASKLIST:
+        case actions.COMPLETE_PROJECT:
+        case actions.CLEAR_TASKS:
             return [];
         default:
             return state;

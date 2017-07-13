@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import { setSelectedTaskList } from '../actions/actions'
 import TaskLists from '../components/TaskLists'
 
-const mapStateToProps = (state) => {
+export const mapStateToProps = (state) => {
     return ({
         tasklists: state.tasklists
     });
